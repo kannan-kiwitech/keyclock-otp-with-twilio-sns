@@ -28,7 +28,11 @@ public class KeycloakSmsConstants {
     // Messages
     public static final String MSG_MOBILE_REGEXP = "mobile_number.regexp.validation";
     public static final String MSG_MOBILE_PREFIX_DEFAULT = "mobile_number.prefix.default";
+    public static final String MSG_MOBILE_SENDER_DEFAULT = "+14429992890";
     public static final String MSG_MOBILE_PREFIX_CONDITION = "mobile_number.prefix.condition";
+
+    public static final String AWS_REGION = "us-east-1";
+
     /*
     mobile_number.prefix.default=+44
     mobile_number.prefix.condition=07

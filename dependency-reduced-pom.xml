@@ -70,10 +70,6 @@
           <artifactId>bcpkix-jdk15on</artifactId>
           <groupId>org.bouncycastle</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>jackson-databind</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -133,10 +129,6 @@
           <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jackson-annotations</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>javase</artifactId>
           <groupId>com.google.zxing</groupId>
         </exclusion>
@@ -152,22 +144,14 @@
           <artifactId>bcpkix-jdk15on</artifactId>
           <groupId>org.bouncycastle</groupId>
         </exclusion>
-        <exclusion>
-          <artifactId>jackson-databind</artifactId>
-          <groupId>com.fasterxml.jackson.core</groupId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.8</version>
+      <version>4.5.10</version>
       <scope>provided</scope>
       <exclusions>
-        <exclusion>
-          <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>commons-codec</artifactId>
           <groupId>commons-codec</groupId>
@@ -195,11 +179,11 @@
   </dependencyManagement>
   <properties>
     <version.jboss-logging>3.4.0.Final</version.jboss-logging>
-    <version.httpclient>4.5.8</version.httpclient>
+    <version.httpclient>4.5.10</version.httpclient>
     <maven.compiler.source>1.8</maven.compiler.source>
     <version.keycloak>4.8.3.Final</version.keycloak>
     <version.commons-lang>2.6</version.commons-lang>
-    <version.aws-java-sdk-sns>1.11.548</version.aws-java-sdk-sns>
+    <version.aws-java-sdk-sns>1.11.681</version.aws-java-sdk-sns>
     <maven.compiler.target>1.8</maven.compiler.target>
     <version.wildfly>14.0.1.Final</version.wildfly>
     <version.libphonenumber>8.10.13</version.libphonenumber>

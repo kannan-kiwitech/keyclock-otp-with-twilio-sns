@@ -1,10 +1,15 @@
 package six.six.gateway.aws.snsclient;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import org.jboss.logging.Logger;
 import six.six.gateway.SMSService;
 import six.six.gateway.govuk.notify.NotifySMSService;
+import six.six.keycloak.KeycloakSmsConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +27,18 @@ public class SnsNotificationService implements SMSService {
                 .withStringValue("HomeOffice")
                 .withDataType("String"));
 
-        logger.debug("Sending to: " + phoneNumber + "|" + clientToken + clientSecret);
-        String id= SnsClientFactory.getSnsClient(clientToken, clientSecret).publish(new PublishRequest()
+        logger.warn("Sending to: " + phoneNumber + "|" + clientToken + clientSecret + " " + KeycloakSmsConstants.AWS_REGION);
+
+        BasicAWSCredentials basicAwsCredentials = new BasicAWSCredentials(clientToken,clientSecret);
+        AmazonSNS snsClient = AmazonSNSClient
+                .builder()
+                .withRegion(KeycloakSmsConstants.AWS_REGION)
+                .withCredentials(new AWSStaticCredentialsProvider(basicAwsCredentials))
+                .build();
+
+
+
+        String id= snsClient.publish(new PublishRequest()
                 .withMessage(message)
                 .withPhoneNumber(phoneNumber)
                 .withMessageAttributes(smsAttributes)).getMessageId();

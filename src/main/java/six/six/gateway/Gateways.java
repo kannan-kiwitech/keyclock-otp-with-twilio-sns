@@ -5,6 +5,5 @@ package six.six.gateway;
  */
 public enum Gateways {
     AMAZON_SNS,
-    GOVUK_NOTIFY,
-    LYRA_SMS
+    TWILIO
 }
