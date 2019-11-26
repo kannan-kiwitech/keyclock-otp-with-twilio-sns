@@ -36,6 +36,9 @@ Under Authentication > Required Actions:
 * Click on the 'Register' button and select 'Update Mobile Number' to add the Required Action to the REALM.
 * Make sure that for 'Update Mobile Number' has 'Enabled' checkbox set and 'Default Action' checkbox unset.
 
+TODO
+* AWS_REGION is in constants, need to make configurable
+* Twilio sender phone number is in constants (MSG_MOBILE_SENDER_DEFAULT), need to make configurable
 
 ## Styling
 
