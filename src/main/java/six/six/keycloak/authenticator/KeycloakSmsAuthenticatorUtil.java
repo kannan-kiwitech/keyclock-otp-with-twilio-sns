@@ -220,12 +220,10 @@ public class KeycloakSmsAuthenticatorUtil {
         String formattedPhoneNumber = convertInternationalPrefix(phoneNumber);
 
         String region;
-        if (isPossibleNationalNumber(formattedPhoneNumber)) {
-            region = "GB";
-        } else if (isInternationalNumber(formattedPhoneNumber)) {
+        if (isInternationalNumber(formattedPhoneNumber)) {
             region = null;
         } else {
-            return true; // If the number cannot be interpreted as an international or possible UK phone number, do not attempt to validate it.
+            return false; // If the number cannot be interpreted as an international or possible UK phone number, do not attempt to validate it.
         }
 
         try {
@@ -245,7 +243,7 @@ public class KeycloakSmsAuthenticatorUtil {
     }
 
     private static boolean isPossibleNationalNumber(String phoneNumber) {
-        return phoneNumber.trim().startsWith("+44") || phoneNumber.trim().startsWith("07");
+        return phoneNumber.trim().startsWith("+91") || phoneNumber.trim().startsWith("+1");
     }
 
     private static boolean isInternationalNumber(String phoneNumber) {
