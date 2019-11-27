@@ -2,6 +2,7 @@ package six.six.gateway.twilio;
 
 import com.twilio.Twilio;
 import org.jboss.logging.Logger;
+import org.keycloak.models.AuthenticatorConfigModel;
 import six.six.gateway.SMSService;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -14,17 +15,17 @@ public class TwilioService implements SMSService {
 
     private static Logger logger = Logger.getLogger(TwilioService.class);
 
-    public boolean send(String phoneNumber, String message, String sId, String authToken) {
+    public boolean send(String phoneNumber, String message, String sId, String authToken, String defaultSenderPhone) {
+        logger.debug("Sending to: " + phoneNumber + "|" + sId + " " + authToken + " " + defaultSenderPhone);
         try {
-            logger.debug("token " + sId + " secret " + authToken);
             Twilio.init(sId, authToken);
             Message sms = Message.creator(new PhoneNumber(phoneNumber),
-                    new PhoneNumber(KeycloakSmsConstants.MSG_MOBILE_SENDER_DEFAULT),
+                    new PhoneNumber(defaultSenderPhone),
                     message).create();
-            logger.info("SMS Send Successfully " + sms.getSid());
+            logger.info("SMS Send Successfully to " + phoneNumber + " " + sms.getSid());
             return true;
-        } catch (Exception ex){
-            logger.error("Unable to send SMS " + ex.getMessage());
+        } catch (Exception ex) {
+            logger.error("Unable to send SMS for " + phoneNumber + " " + ex.getMessage());
             return false;
         }
     }

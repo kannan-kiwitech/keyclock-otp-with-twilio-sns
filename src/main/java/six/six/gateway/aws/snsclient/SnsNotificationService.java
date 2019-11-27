@@ -8,8 +8,6 @@ import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import org.jboss.logging.Logger;
 import six.six.gateway.SMSService;
-import six.six.gateway.govuk.notify.NotifySMSService;
-import six.six.keycloak.KeycloakSmsConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,30 +17,34 @@ import java.util.Map;
  */
 public class SnsNotificationService implements SMSService {
 
-    //TODO Implement proxy
     private static Logger logger = Logger.getLogger(SnsNotificationService.class);
-    public boolean send(String phoneNumber, String message, String clientToken, String clientSecret) {
-        Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
-        smsAttributes.put("AWS.SNS.SMS.SenderID", new MessageAttributeValue()
-                .withStringValue("HomeOffice")
-                .withDataType("String"));
 
-        logger.warn("Sending to: " + phoneNumber + "|" + clientToken + clientSecret + " " + KeycloakSmsConstants.AWS_REGION);
+    public boolean send(String phoneNumber, String message, String clientToken, String clientSecret, String awsRegion) {
 
-        BasicAWSCredentials basicAwsCredentials = new BasicAWSCredentials(clientToken,clientSecret);
-        AmazonSNS snsClient = AmazonSNSClient
-                .builder()
-                .withRegion(KeycloakSmsConstants.AWS_REGION)
-                .withCredentials(new AWSStaticCredentialsProvider(basicAwsCredentials))
-                .build();
+        logger.debug("Sending to: " + phoneNumber + "|" + clientToken + clientSecret + " " + awsRegion);
+        try {
+            Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
+            smsAttributes.put("AWS.SNS.SMS.SenderID", new MessageAttributeValue()
+                    .withStringValue("HomeOffice")
+                    .withDataType("String"));
 
+            BasicAWSCredentials basicAwsCredentials = new BasicAWSCredentials(clientToken, clientSecret);
+            AmazonSNS snsClient = AmazonSNSClient
+                    .builder()
+                    .withRegion(awsRegion)
+                    .withCredentials(new AWSStaticCredentialsProvider(basicAwsCredentials))
+                    .build();
 
+            String id = snsClient.publish(new PublishRequest()
+                    .withMessage(message)
+                    .withPhoneNumber(phoneNumber)
+                    .withMessageAttributes(smsAttributes)).getMessageId();
+            logger.info("SMS Send Successfully to " + phoneNumber + " " + id);
+            return (id != null);
+        } catch (Exception ex) {
+            logger.error("Unable to send SMS for " + phoneNumber + " " + ex.getMessage());
+            return false;
+        }
 
-        String id= snsClient.publish(new PublishRequest()
-                .withMessage(message)
-                .withPhoneNumber(phoneNumber)
-                .withMessageAttributes(smsAttributes)).getMessageId();
-
-        return (id!=null);
     }
 }

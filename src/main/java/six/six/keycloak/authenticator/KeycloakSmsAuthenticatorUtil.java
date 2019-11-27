@@ -15,8 +15,6 @@ import org.keycloak.theme.ThemeProvider;
 import six.six.gateway.Gateways;
 import six.six.gateway.SMSService;
 import six.six.gateway.aws.snsclient.SnsNotificationService;
-import six.six.gateway.govuk.notify.NotifySMSService;
-import six.six.gateway.lyrasms.LyraSMSService;
 import six.six.gateway.twilio.TwilioService;
 import six.six.keycloak.EnvSubstitutor;
 import six.six.keycloak.KeycloakSmsConstants;
@@ -101,17 +99,17 @@ public class KeycloakSmsAuthenticatorUtil {
         return value;
     }
 
-    public static String createMessage(String text,String code, String mobileNumber) {
-        if(text !=null){
+    public static String createMessage(String text, String code, String mobileNumber) {
+        if (text != null) {
             text = text.replaceAll("%sms-code%", code);
             text = text.replaceAll("%phonenumber%", mobileNumber);
         }
         return text;
     }
 
-    public static String setDefaultCountryCodeIfZero(String mobileNumber,String prefix ,String condition) {
+    public static String setDefaultCountryCodeIfZero(String mobileNumber, String prefix, String condition) {
 
-        if (prefix!=null && condition!=null && mobileNumber.startsWith(condition)) {
+        if (prefix != null && condition != null && mobileNumber.startsWith(condition)) {
             mobileNumber = prefix + mobileNumber.substring(1);
         }
         return mobileNumber;
@@ -119,6 +117,7 @@ public class KeycloakSmsAuthenticatorUtil {
 
     /**
      * Check mobile number normative strcuture
+     *
      * @param mobileNumber
      * @return formatted mobile number
      */
@@ -137,27 +136,27 @@ public class KeycloakSmsAuthenticatorUtil {
     }
 
 
-    public static String getMessage(AuthenticationFlowContext context, String key){
-        String result=null;
+    public static String getMessage(AuthenticationFlowContext context, String key) {
+        String result = null;
         try {
             ThemeProvider themeProvider = context.getSession().getProvider(ThemeProvider.class, "extending");
             Theme currentTheme = themeProvider.getTheme(context.getRealm().getLoginTheme(), Theme.Type.LOGIN);
             Locale locale = context.getSession().getContext().resolveLocale(context.getUser());
             result = currentTheme.getMessages(locale).getProperty(key);
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.warn(key + "not found in messages");
         }
         return result;
     }
 
-    public static String getMessage(RequiredActionContext context, String key){
-        String result=null;
+    public static String getMessage(RequiredActionContext context, String key) {
+        String result = null;
         try {
             ThemeProvider themeProvider = context.getSession().getProvider(ThemeProvider.class, "extending");
             Theme currentTheme = themeProvider.getTheme(context.getRealm().getLoginTheme(), Theme.Type.LOGIN);
             Locale locale = context.getSession().getContext().resolveLocale(context.getUser());
             result = currentTheme.getMessages(locale).getProperty(key);
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.warn(key + "not found in messages");
         }
         return result;
@@ -173,15 +172,9 @@ public class KeycloakSmsAuthenticatorUtil {
         String smsUsr = EnvSubstitutor.envSubstitutor.replace(getConfigString(config, KeycloakSmsConstants.CONF_PRP_SMS_CLIENTTOKEN));
         String smsPwd = EnvSubstitutor.envSubstitutor.replace(getConfigString(config, KeycloakSmsConstants.CONF_PRP_SMS_CLIENTSECRET));
         String gateway = getConfigString(config, KeycloakSmsConstants.CONF_PRP_SMS_GATEWAY);
-
-        // LyraSMS properties
-//        String endpoint = EnvSubstitutor.envSubstitutor.replace(getConfigString(config, KeycloakSmsConstants.CONF_PRP_SMS_GATEWAY_ENDPOINT));
-//        boolean isProxy = getConfigBoolean(config, KeycloakSmsConstants.PROXY_ENABLED);
-
-        // GOV.UK Notify properties
-//        String notifyApiKey = System.getenv(KeycloakSmsConstants.NOTIFY_API_KEY);
-//        String notifyTemplate = System.getenv(KeycloakSmsConstants.NOTIFY_TEMPLATE_ID);
-
+        String awsRegion = getConfigString(config, KeycloakSmsConstants.CONF_PRP_AWS_REGION);
+        String twilioSenderPhone = getConfigString(config, KeycloakSmsConstants.CONF_PRP_SMS_SENDER_DEFAULT);
+        String param = "";
         // Create the SMS message body
         String template = getMessage(context, KeycloakSmsConstants.CONF_PRP_SMS_TEXT);
         String smsText = createMessage(template, code, mobileNumber);
@@ -190,18 +183,20 @@ public class KeycloakSmsAuthenticatorUtil {
         SMSService smsService;
         try {
             Gateways g = Gateways.valueOf(gateway);
-            switch(g) {
+            switch (g) {
                 case TWILIO:
                     smsService = new TwilioService();
+                    param = twilioSenderPhone;
                     break;
                 default:
                     smsService = new SnsNotificationService();
+                    param = awsRegion;
             }
 
-            result=smsService.send(checkMobileNumber(setDefaultCountryCodeIfZero(mobileNumber, getMessage(context, KeycloakSmsConstants.MSG_MOBILE_PREFIX_DEFAULT), getMessage(context, KeycloakSmsConstants.MSG_MOBILE_PREFIX_CONDITION))), smsText, smsUsr, smsPwd);
-          return result;
-       } catch(Exception e) {
-            logger.error("Fail to send SMS " ,e );
+            result = smsService.send(checkMobileNumber(setDefaultCountryCodeIfZero(mobileNumber, getMessage(context, KeycloakSmsConstants.MSG_MOBILE_PREFIX_DEFAULT), getMessage(context, KeycloakSmsConstants.MSG_MOBILE_PREFIX_CONDITION))), smsText, smsUsr, smsPwd, param);
+            return result;
+        } catch (Exception e) {
+            logger.error("Fail to send SMS ", e);
             return false;
         }
     }

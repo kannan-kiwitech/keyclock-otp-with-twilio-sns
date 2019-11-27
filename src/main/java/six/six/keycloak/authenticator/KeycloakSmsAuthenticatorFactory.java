@@ -46,7 +46,7 @@ public class KeycloakSmsAuthenticatorFactory implements AuthenticatorFactory, Co
         property.setLabel("SMS code time to live");
         property.setType(ProviderConfigProperty.STRING_TYPE);
         property.setHelpText("The validity of the sent code in seconds.");
-        property.setDefaultValue(60*5);
+        property.setDefaultValue(60 * 5);
         configProperties.add(property);
 
         property = new ProviderConfigProperty();
@@ -69,13 +69,22 @@ public class KeycloakSmsAuthenticatorFactory implements AuthenticatorFactory, Co
                 .collect(Collectors.toList()));
         configProperties.add(property);
 
-        // SMS Endpoint
+        // TWILIO Sender
         property = new ProviderConfigProperty();
-        property.setName(KeycloakSmsConstants.CONF_PRP_SMS_GATEWAY_ENDPOINT);
-        property.setLabel("SMS endpoint");
+        property.setName(KeycloakSmsConstants.CONF_PRP_SMS_SENDER_DEFAULT);
+        property.setLabel("Twilio Sender Phone number");
         property.setType(ProviderConfigProperty.STRING_TYPE);
-        property.setHelpText("Deprecated");
+        property.setHelpText("Only for Twilio");
         configProperties.add(property);
+
+        // AWS Region
+        property = new ProviderConfigProperty();
+        property.setName(KeycloakSmsConstants.CONF_PRP_AWS_REGION);
+        property.setLabel("AWS Region");
+        property.setType(ProviderConfigProperty.STRING_TYPE);
+        property.setHelpText("Only for SNS");
+        configProperties.add(property);
+
 
         // Credential
         property = new ProviderConfigProperty();
