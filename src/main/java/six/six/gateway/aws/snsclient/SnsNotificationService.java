@@ -28,6 +28,10 @@ public class SnsNotificationService implements SMSService {
                     .withStringValue("HomeOffice")
                     .withDataType("String"));
 
+            smsAttributes.put("AWS.SNS.SMS.DefaultSMSType", new MessageAttributeValue()
+                    .withStringValue("Transactional")
+                    .withDataType("String"));
+
             BasicAWSCredentials basicAwsCredentials = new BasicAWSCredentials(clientToken, clientSecret);
             AmazonSNS snsClient = AmazonSNSClient
                     .builder()

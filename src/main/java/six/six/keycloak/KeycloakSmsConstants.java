@@ -5,9 +5,11 @@ package six.six.keycloak;
  */
 public class KeycloakSmsConstants {
     public static final String ATTR_MOBILE = "mobile_number";
+    public static final String ATTR_COUNTRY_CODE = "country_code";
     public static final String ATTR_MOBILE_VERIFIED = "mobile_number_verified";
     public static final String VERIFY_MOBILENUMBER_KEY = "VERIFY_MOBILENUMBER_KEY";
     public static final String ANSW_SMS_CODE = "smsCode";
+    public static final String ANSW_SMS_RESEND = "Resend";
 
     public static final String CONF_PRP_SMS_CODE_TTL = "sms-auth.code.ttl";
     public static final String CONF_PRP_SMS_CODE_LENGTH = "sms-auth.code.length";

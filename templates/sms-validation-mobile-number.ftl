@@ -24,6 +24,7 @@
 
                 <div class="govuk-form-group">
                     <input class="govuk-button" type="submit" value="${msg("doSubmit")}"/>
+                    <input class="govuk-button" name="login" id="kc-resend" type="submit" value="${msg("smsResend")}"/>
                 </div>
             </form>
         </div>

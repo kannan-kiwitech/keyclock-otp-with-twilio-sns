@@ -11,6 +11,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.utils.FormMessage;
 import six.six.keycloak.KeycloakSmsConstants;
 import six.six.keycloak.MobileNumberHelper;
 import six.six.keycloak.requiredaction.action.required.KeycloakSmsMobilenumberRequiredAction;
@@ -112,38 +113,56 @@ public class KeycloakSmsAuthenticator implements Authenticator {
     @Override
     public void action(AuthenticationFlowContext context) {
         logger.debug("action called ... context = " + context);
-        CODE_STATUS status = validateCode(context);
-        Response challenge = null;
-        switch (status) {
-            case EXPIRED:
-                challenge = context.form()
-                        .setError("sms-auth.code.expired")
-                        .createForm("sms-validation.ftl");
-                context.failureChallenge(AuthenticationFlowError.EXPIRED_CODE, challenge);
-                break;
 
-            case INVALID:
-                if (context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.OPTIONAL ||
-                        context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.ALTERNATIVE) {
-                    logger.debug("Calling context.attempted()");
-                    context.attempted();
-                } else if (context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.REQUIRED) {
+        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        String enteredCode = formData.getFirst("login");
+
+
+        if(KeycloakSmsConstants.ANSW_SMS_RESEND.equals(enteredCode) ){
+            logger.info("Resending...");
+
+            authenticate(context);
+
+        } else {
+            logger.info("Validating...");
+
+            CODE_STATUS status = validateCode(context);
+            Response challenge = null;
+            switch (status) {
+                case EXPIRED:
                     challenge = context.form()
-                            .setError("sms-auth.code.invalid")
+                            .setError("sms-auth.code.expired")
                             .createForm("sms-validation.ftl");
-                    context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-                } else {
-                    // Something strange happened
-                    logger.warn("Undefined execution ...");
-                }
-                break;
+                    context.failureChallenge(AuthenticationFlowError.EXPIRED_CODE, challenge);
+                    break;
 
-            case VALID:
-                context.success();
-                updateVerifiedMobilenumber(context);
-                break;
+                case INVALID:
+                    if (context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.OPTIONAL ||
+                            context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.ALTERNATIVE) {
+                        logger.debug("Calling context.attempted()");
+                        context.attempted();
+                    } else if (context.getExecution().getRequirement() == AuthenticationExecutionModel.Requirement.REQUIRED) {
+                        challenge = context.form()
+                                .setError("sms-auth.code.invalid")
+                                .createForm("sms-validation.ftl");
+                        context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+                    } else {
+                        // Something strange happened
+                        logger.warn("Undefined execution ...");
+                    }
+                    break;
 
+                case VALID:
+                    context.success();
+                    updateVerifiedMobilenumber(context);
+                    break;
+
+            }
         }
+
+
+
+
     }
 
     /**
